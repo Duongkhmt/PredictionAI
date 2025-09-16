@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử Phân tích - AI Sentiment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .history-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .analysis-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .text-truncate-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            color: white;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .history-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .btn-group {
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            .btn-group .btn {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <div class="d-flex justify-content-between w-100 align-items-center">
+            <!-- Nút quay về Dashboard -->
+            <a th:href="@{/dashboard}" class="nav-brand">
+                <i class="fas fa-arrow-left me-2"></i>Quay về Dashboard
+            </a>
+
+            <!-- User info và logout -->
+            <div class="d-flex align-items-center">
+                <span class="user-info"
+                      th:text="${#authentication != null} ? ${#authentication.name} : 'Guest'">Guest</span>
+                <form th:if="${#authentication != null}" th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-light btn-sm ms-2">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="history-container">
+                <!-- Navigation buttons -->
+<!--                <div class="navigation-buttons text-center mb-4">-->
+<!--                    <a th:href="@{/dashboard}" class="btn btn-outline-primary me-2">-->
+<!--                        <i class="fas fa-home me-1"></i>Dashboard-->
+<!--                    </a>-->
+<!--                    <a th:href="@{/analyze}" class="btn btn-outline-info me-2">-->
+<!--                        <i class="fas fa-smile me-1"></i>Phân tích-->
+<!--                    </a>-->
+<!--                    <a th:href="@{/statistics}" class="btn btn-outline-success me-2">-->
+<!--                        <i class="fas fa-chart-pie me-1"></i>Thống kê-->
+<!--                    </a>-->
+<!--                    <a th:href="@{/predictions}" class="btn btn-primary">-->
+<!--                        <i class="fas fa-history me-1"></i>Lịch sử-->
+<!--                    </a>-->
+<!--                </div>-->
+
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary">
+                        <i class="fas fa-history me-2"></i>Lịch sử Phân tích
+                    </h2>
+                    <p class="text-muted">Xem lại tất cả các phân tích đã thực hiện</p>
+                </div>
+
+                <!-- Search và Action buttons -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <form th:action="@{/search}" method="get" class="d-flex">
+                            <input type="text" name="keyword" class="form-control search-box me-2"
+                                   placeholder="Tìm kiếm phân tích..." th:value="${searchKeyword}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <form th:action="@{/delete-all}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger"
+                                    th:disabled="${analyses == null || analyses.empty}">
+                                <i class="fas fa-trash me-1"></i>Xóa tất cả
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Hiển thị thông báo -->
+                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Danh sách phân tích -->
+                <div th:if="${analyses != null && !analyses.empty}">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Văn bản</th>
+                                <th>Cảm xúc</th>
+                                <th>Độ tin cậy</th>
+                                <th>Thao tác</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="analysis : ${analyses}" th:switch="${analysis.sentiment}">
+                                <td>
+                                    <span th:text="${#temporals.format(analysis.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                                </td>
+                                <td>
+                                    <div class="text-truncate-3" th:text="${analysis.textInput}" style="max-width:300px;"></div>
+                                </td>
+                                <td>
+                                    <span th:case="'Tích cực'" class="badge bg-success" th:text="${analysis.sentiment}"></span>
+                                    <span th:case="'Tiêu cực'" class="badge bg-danger" th:text="${analysis.sentiment}"></span>
+                                    <span th:case="*" class="badge bg-warning" th:text="${analysis.sentiment}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        <span th:text="${#numbers.formatDecimal(analysis.confidence * 100, 1, 1)}"></span>%
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <form th:action="@{/update-advice/{id}(id=${analysis.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-primary btn-action"
+                                                    title="Cập nhật lời khuyên">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/delete-analysis/{id}(id=${analysis.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger btn-action"
+                                                    title="Xóa phân tích"
+                                                    onclick="return confirm('Bạn có chắc muốn xóa phân tích này?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Tổng cộng: <strong th:text="${analyses.size()}">0</strong> phân tích
+                        </p>
+                    </div>
+                </div>
+
+                <div th:unless="${analyses != null && !analyses.empty}" class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Chưa có phân tích nào</h5>
+                    <p class="text-muted">Hãy thực hiện phân tích đầu tiên của bạn!</p>
+                    <a th:href="@{/analyze}" class="btn btn-primary">
+                        <i class="fas fa-smile me-1"></i>Phân tích ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelector('form[action*="delete-all"]').addEventListener('submit', function(e) {
+        if (!confirm('Bạn có chắc muốn xóa TẤT CẢ phân tích? Hành động này không thể hoàn tác!')) {
+            e.preventDefault();
+        }
+    });
+
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+</body>
+</html>

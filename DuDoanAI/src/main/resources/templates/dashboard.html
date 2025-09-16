@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Sentiment Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #ff6b6b;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0.8rem 0;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - 56px);
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: #f8f9fa;
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-menu a.active {
+            background-color: #e9ecef;
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu i {
+            width: 24px;
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Dashboard cards */
+        .dashboard-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        /* Statistics cards */
+        .stat-card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            text-align: center;
+            height: 100%;
+            background: white;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+
+        .btn-gradient:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Welcome section */
+        .welcome-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 15px;
+            color: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        /* Recent activity */
+        .recent-activity {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-top: 2rem;
+        }
+
+        .activity-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+
+        .activity-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.show {
+                width: var(--sidebar-width);
+                transform: translateX(0);
+            }
+
+            .stat-number {
+                font-size: 1.8rem;
+            }
+
+            .welcome-section {
+                padding: 20px;
+            }
+        }
+
+        /* User info */
+        .user-info {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            color: white;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <button class="btn btn-link text-light d-lg-none" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <a class="navbar-brand mx-auto mx-lg-0" th:href="@{/dashboard}">
+            <i class="fas fa-brain me-2"></i>AI Sentiment Analysis
+        </a>
+
+        <div class="navbar-nav ms-auto align-items-center">
+            <th:block th:if="${isAuthenticated}">
+                <span class="user-info">
+                    <i class="fas fa-user me-2"></i>
+                    <span th:text="${username}"></span>
+                </span>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-light">
+                        <i class="fas fa-sign-out-alt me-1"></i>Đăng xuất
+                    </button>
+                </form>
+            </th:block>
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h5 class="mb-0">Menu điều hướng</h5>
+    </div>
+    <ul class="sidebar-menu">
+        <li>
+            <a th:href="@{/dashboard}" class="active">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/analyze}">
+                <i class="fas fa-smile"></i> Phân tích cảm xúc
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/predictions}">
+                <i class="fas fa-history"></i> Lịch sử phân tích
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/statistics}">
+                <i class="fas fa-chart-bar"></i> Thống kê
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/logout}">
+
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>Chào mừng trở lại, <span th:text="${username}"></span>!</h2>
+                <p class="mb-0">Hệ thống AI phân tích cảm xúc tiếng Việt của bạn đã sẵn sàng</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a th:href="@{/analyze}" class="btn btn-light">
+                    <i class="fas fa-play me-2"></i>Bắt đầu phân tích
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="card-icon text-primary">
+                    <i class="fas fa-smile"></i>
+                </div>
+                <h3 class="stat-number" th:text="${totalAnalyses}">0</h3>
+                <p class="text-muted">Tổng phân tích</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="card-icon text-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="stat-number" th:text="${#numbers.formatDecimal(positivePercentage, 1, 1)}">0</h3>
+                <p class="text-muted">% Tích cực</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="card-icon text-info">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="stat-number" th:text="${positiveCount}">0</h3>
+                <p class="text-muted">Phân tích tích cực</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="card-icon text-warning">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="stat-number" th:text="${neutralCount}">0</h3>
+                <p class="text-muted">Phân tích trung tính</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+<!--    <div class="row">-->
+<!--        <div class="col-lg-12 mb-4">-->
+<!--            <h4 class="mb-4">Thao tác nhanh</h4>-->
+<!--        </div>-->
+
+<!--        <div class="col-md-4 mb-4">-->
+<!--            <div class="dashboard-card bg-white p-4 text-center">-->
+<!--                <div class="card-icon text-primary">-->
+<!--                    <i class="fas fa-smile"></i>-->
+<!--                </div>-->
+<!--                <h5>Phân tích cảm xúc</h5>-->
+<!--                <p class="text-muted">Phân tích cảm xúc từ văn bản tiếng Việt</p>-->
+<!--                <a th:href="@{/analyze}" class="btn btn-gradient mt-3">-->
+<!--                    <i class="fas fa-play me-2"></i>Bắt đầu-->
+<!--                </a>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="col-md-4 mb-4">-->
+<!--            <div class="dashboard-card bg-white p-4 text-center">-->
+<!--                <div class="card-icon text-success">-->
+<!--                    <i class="fas fa-history"></i>-->
+<!--                </div>-->
+<!--                <h5>Lịch sử phân tích</h5>-->
+<!--                <p class="text-muted">Xem lại các phân tích đã thực hiện</p>-->
+<!--                <a th:href="@{/predictions}" class="btn btn-gradient mt-3">-->
+<!--                    <i class="fas fa-list me-2"></i>Xem lịch sử-->
+<!--                </a>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="col-md-4 mb-4">-->
+<!--            <div class="dashboard-card bg-white p-4 text-center">-->
+<!--                <div class="card-icon text-info">-->
+<!--                    <i class="fas fa-chart-bar"></i>-->
+<!--                </div>-->
+<!--                <h5>Thống kê</h5>-->
+<!--                <p class="text-muted">Phân tích dữ liệu và xu hướng cảm xúc</p>-->
+<!--                <a th:href="@{/statistics}" class="btn btn-gradient mt-3">-->
+<!--                    <i class="fas fa-chart-pie me-2"></i>Xem thống kê-->
+<!--                </a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+        <h4 class="mb-4">
+            <i class="fas fa-clock me-2"></i>Hoạt động gần đây
+        </h4>
+
+        <div th:if="${recentAnalyses != null && !recentAnalyses.empty}">
+            <div th:each="analysis : ${recentAnalyses}" class="activity-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">
+                            <span th:switch="${analysis.sentiment}">
+                                <span th:case="'Tích cực'" class="text-success">
+                                    <i class="fas fa-smile me-2"></i>
+                                </span>
+                                <span th:case="'Tiêu cực'" class="text-danger">
+                                    <i class="fas fa-frown me-2"></i>
+                                </span>
+                                <span th:case="*" class="text-warning">
+                                    <i class="fas fa-meh me-2"></i>
+                                </span>
+                            </span>
+                            <span th:text="${analysis.sentiment}"></span>
+                        </h6>
+                        <p class="mb-0 text-muted small" th:text="${analysis.textInput}"></p>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted" th:text="${#temporals.format(analysis.createdAt, 'HH:mm')}"></small>
+                        <br>
+                        <small class="text-muted" th:text="${#temporals.format(analysis.createdAt, 'dd/MM/yyyy')}"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:unless="${recentAnalyses != null && !recentAnalyses.empty}" class="text-center py-4">
+            <i class="fas fa-inbox fa-2x text-muted mb-3"></i>
+            <p class="text-muted">Chưa có hoạt động nào gần đây</p>
+            <a th:href="@{/analyze}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Thực hiện phân tích đầu tiên
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Toggle sidebar on mobile
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('show');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+
+        if (window.innerWidth < 768 &&
+            !sidebar.contains(event.target) &&
+            !toggleBtn.contains(event.target) &&
+            sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+        }
+    });
+
+    // Auto-hide sidebar on mobile when item is clicked
+    document.querySelectorAll('.sidebar-menu a').forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.remove('show');
+            }
+        });
+    });
+</script>
+</body>
+</html>
+

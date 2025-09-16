@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân tích Cảm xúc - AI Sentiment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .analysis-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(45deg, #6e8efb, #a777e3);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            padding: 10px 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: white;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .advice-section {
+            background: linear-gradient(135deg, #fff3cd, #e2f0fb);
+            border-left: 4px solid #6e8efb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .advice-header {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .navigation-buttons {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .analysis-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .stat-card {
+                margin-bottom: 1rem;
+            }
+
+            .btn-gradient {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <div class="d-flex justify-content-between w-100 align-items-center">
+            <!-- Nút quay về Dashboard -->
+            <a th:href="@{/dashboard}" class="nav-brand">
+                <i class="fas fa-arrow-left me-2"></i>Quay về Dashboard
+            </a>
+
+            <!-- User info và logout -->
+            <div class="d-flex align-items-center">
+                <span class="user-info">
+                    <i class="fas fa-user me-2"></i>
+<!--                    <span th:text="${username}">User</span>-->
+                </span>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+<!--                        <i class="fas fa-sign-out-alt me-1"></i>Đăng xuất-->
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="analysis-container">
+<!--                &lt;!&ndash; Navigation buttons &ndash;&gt;-->
+<!--                <div class="navigation-buttons text-center mb-4">-->
+<!--                    <a th:href="@{/dashboard}" class="btn btn-outline-primary me-2">-->
+<!--                        <i class="fas fa-home me-1"></i>Dashboard-->
+<!--                    </a>-->
+<!--                    <a th:href="@{/predictions}" class="btn btn-outline-info me-2">-->
+<!--                        <i class="fas fa-history me-1"></i>Lịch sử-->
+<!--                    </a>-->
+<!--                    <a th:href="@{/statistics}" class="btn btn-outline-success">-->
+<!--                        <i class="fas fa-chart-pie me-1"></i>Thống kê-->
+<!--                    </a>-->
+<!--                </div>-->
+
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary">
+                        <i class="fas fa-smile me-2"></i>Phân tích Cảm xúc
+                    </h2>
+                    <p class="text-muted">Nhập văn bản tiếng Việt để phân tích cảm xúc tự động</p>
+                </div>
+
+                <form th:action="@{/analyze-sentiment}" method="post">
+                    <div class="mb-3">
+                        <label for="text" class="form-label fw-bold">Văn bản cần phân tích:</label>
+                        <textarea class="form-control" id="text" name="text" rows="5"
+                                  placeholder="Nhập văn bản tiếng Việt ở đây..."
+                                  required
+                                  style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;"></textarea>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="detailed" name="detailed">
+                        <label class="form-check-label" for="detailed">
+                            <i class="fas fa-search-plus me-1"></i>Phân tích chi tiết (cho văn bản dài)
+                        </label>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn-gradient btn-lg">
+                            <i class="fas fa-magic me-2"></i>Phân tích Cảm xúc
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Stats Section -->
+<!--                <div class="row mt-4">-->
+<!--                    <div class="col-md-4">-->
+<!--                        <div class="stat-card">-->
+<!--                            <div class="stat-number" th:text="${totalAnalyses}">0</div>-->
+<!--                            <p>Lần phân tích</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-md-4">-->
+<!--                        <div class="stat-card">-->
+<!--                            <div class="stat-number">89%</div>-->
+<!--                            <p>Độ chính xác</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-md-4">-->
+<!--                        <div class="stat-card">-->
+<!--                            <div class="stat-number">24/7</div>-->
+<!--                            <p>Hoạt động</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+                <!-- Phần hiển thị kết quả phân tích -->
+                <div th:if="${showResult}" class="mt-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-header bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>Kết quả phân tích
+                        </div>
+                        <div class="card-body">
+                            <h5>
+                                Cảm xúc:
+                                <span th:switch="${analysis.sentiment}">
+                                    <span th:case="'Tích cực'" class="text-success fw-bold" th:text="${analysis.sentiment}"></span>
+                                    <span th:case="'Tiêu cực'" class="text-danger fw-bold" th:text="${analysis.sentiment}"></span>
+                                    <span th:case="*" class="text-warning fw-bold" th:text="${analysis.sentiment}"></span>
+                                </span>
+                            </h5>
+
+                            <div class="mt-3">
+                                <h6><i class="fas fa-quote-left me-2 text-muted"></i>Văn bản đã phân tích:</h6>
+                                <p class="text-muted" th:text="${analysis.textInput}"></p>
+                            </div>
+
+                            <div class="advice-section mt-3">
+                                <h6 class="advice-header">
+                                    <i class="fas fa-lightbulb me-2 text-warning"></i>Lời khuyên từ AI:
+                                </h6>
+                                <div class="advice-content" th:utext="${analysis.advice}"></div>
+                            </div>
+
+                            <div class="mt-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Phân tích vào: <span th:text="${#temporals.format(analysis.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                                </small>
+                            </div>
+
+                            <div class="mt-3">
+                                <a th:href="@{/predictions}" class="btn btn-outline-primary">
+                                    <i class="fas fa-history me-1"></i>Xem lịch sử
+                                </a>
+                                <a th:href="@{/analyze}" class="btn btn-outline-secondary ms-2">
+                                    <i class="fas fa-redo me-1"></i>Phân tích mới
+                                </a>
+                                <a th:href="@{/dashboard}" class="btn btn-outline-success ms-2">
+                                    <i class="fas fa-home me-1"></i>Về Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hiển thị lỗi nếu có -->
+                <div th:if="${error}" class="alert alert-danger mt-4" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Tự động focus vào textarea khi trang load
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('text');
+        if (textarea) {
+            textarea.focus();
+        }
+    });
+
+    // Hiển thị thông báo khi phân tích thành công
+    const showResult = document.querySelector('[th\\:if="${showResult}"]');
+    if (showResult) {
+        setTimeout(() => {
+            showResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    }
+</script>
+</body>
+</html>

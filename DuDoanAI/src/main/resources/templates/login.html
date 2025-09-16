@@ -1,0 +1,279 @@
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="vi">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Đăng nhập - AI Sentiment Analysis</title>-->
+
+<!--    &lt;!&ndash; Bootstrap & Icons &ndash;&gt;-->
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">-->
+<!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">-->
+
+<!--    <style>-->
+<!--        body {-->
+<!--            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);-->
+<!--            min-height: 100vh;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            justify-content: center;-->
+<!--            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;-->
+<!--        }-->
+
+<!--        .login-container {-->
+<!--            background: rgba(255, 255, 255, 0.12);-->
+<!--            backdrop-filter: blur(15px);-->
+<!--            border-radius: 20px;-->
+<!--            padding: 2.5rem;-->
+<!--            width: 100%;-->
+<!--            max-width: 420px;-->
+<!--            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);-->
+<!--            color: white;-->
+<!--        }-->
+
+<!--        .login-container h3 {-->
+<!--            font-weight: bold;-->
+<!--            margin-bottom: 1.5rem;-->
+<!--            text-align: center;-->
+<!--            color: #fff;-->
+<!--        }-->
+
+<!--        .form-label {-->
+<!--            font-weight: 600;-->
+<!--            color: #f0f0f0;-->
+<!--        }-->
+
+<!--        .form-control {-->
+<!--            border-radius: 12px;-->
+<!--            padding: 12px;-->
+<!--            border: none;-->
+<!--            outline: none;-->
+<!--            background: rgba(255, 255, 255, 0.85);-->
+<!--        }-->
+
+<!--        .form-control:focus {-->
+<!--            border: 2px solid #667eea;-->
+<!--            box-shadow: 0 0 10px rgba(102, 126, 234, 0.6);-->
+<!--        }-->
+
+<!--        .btn-primary {-->
+<!--            background: linear-gradient(45deg, #667eea, #764ba2);-->
+<!--            border: none;-->
+<!--            border-radius: 12px;-->
+<!--            padding: 12px;-->
+<!--            font-weight: bold;-->
+<!--            font-size: 16px;-->
+<!--            transition: all 0.3s ease;-->
+<!--        }-->
+
+<!--        .btn-primary:hover {-->
+<!--            transform: translateY(-2px);-->
+<!--            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.6);-->
+<!--        }-->
+
+<!--        .google-btn {-->
+<!--            background-color: #db4437;-->
+<!--            border: none;-->
+<!--            border-radius: 12px;-->
+<!--            padding: 12px;-->
+<!--            font-weight: bold;-->
+<!--            font-size: 16px;-->
+<!--            color: white;-->
+<!--            transition: all 0.3s ease;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            justify-content: center;-->
+<!--            gap: 8px;-->
+<!--        }-->
+
+<!--        .google-btn:hover {-->
+<!--            background-color: #c23321;-->
+<!--            transform: translateY(-2px);-->
+<!--            box-shadow: 0 6px 18px rgba(219, 68, 55, 0.5);-->
+<!--        }-->
+
+<!--        .login-container a {-->
+<!--            color: #ffd369;-->
+<!--            font-weight: 600;-->
+<!--            text-decoration: none;-->
+<!--        }-->
+
+<!--        .login-container a:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="login-container">-->
+<!--    <h3>Đăng nhập</h3>-->
+
+<!--    &lt;!&ndash; Thông báo lỗi &ndash;&gt;-->
+<!--    <div th:if="${param.error}" class="alert alert-danger">-->
+<!--        Sai tên đăng nhập hoặc mật khẩu!-->
+<!--    </div>-->
+<!--    <div th:if="${param.logout}" class="alert alert-success">-->
+<!--        Bạn đã đăng xuất thành công!-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Form login &ndash;&gt;-->
+<!--    <form th:action="@{/login}" method="post">-->
+<!--        <div class="mb-3">-->
+<!--            <label for="username" class="form-label">Tên đăng nhập</label>-->
+<!--            <input type="text" id="username" name="username" class="form-control" required autofocus>-->
+<!--        </div>-->
+<!--        <div class="mb-3">-->
+<!--            <label for="password" class="form-label">Mật khẩu</label>-->
+<!--            <input type="password" id="password" name="password" class="form-control" required>-->
+<!--        </div>-->
+<!--        <div class="mb-3 form-check">-->
+<!--            <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input">-->
+<!--            <label for="remember-me" class="form-check-label">Ghi nhớ đăng nhập</label>-->
+<!--        </div>-->
+<!--        <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>-->
+<!--    </form>-->
+
+<!--    <hr class="my-4">-->
+
+<!--    &lt;!&ndash; Nút đăng nhập Google &ndash;&gt;-->
+<!--    <a th:href="@{/oauth2/authorization/google}" class="google-btn w-100">-->
+<!--        <i class="fab fa-google"></i> Đăng nhập bằng Google-->
+<!--    </a>-->
+
+<!--    <div class="mt-3 text-center">-->
+<!--        <a th:href="@{/register}">Chưa có tài khoản? Đăng ký ngay</a>-->
+<!--    </div>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
+
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - AI Sentiment Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 30px 35px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-container h3 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .form-control:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 5px rgba(106,17,203,0.5);
+        }
+
+        .btn-primary {
+            background-color: #2575fc;
+            border-color: #2575fc;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #6a11cb;
+        }
+
+        .btn-danger {
+            background-color: #ea4335;
+            border-color: #ea4335;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #c5221f;
+        }
+
+        a {
+            text-decoration: none;
+            color: #2575fc;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #6a11cb;
+        }
+
+        hr {
+            border-top: 1px solid #ddd;
+        }
+
+        .alert {
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-check-label {
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h3>Đăng nhập</h3>
+
+    <!-- Thông báo lỗi -->
+    <div th:if="${param.error != null}" class="alert alert-danger">
+        Sai tên đăng nhập hoặc mật khẩu!
+    </div>
+    <div th:if="${param.logout != null}" class="alert alert-success">
+        Bạn đã đăng xuất thành công!
+    </div>
+
+    <!-- Form login -->
+    <form th:action="@{/login}" method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label">Tên đăng nhập</label>
+            <input type="text" id="username" name="username" class="form-control" required autofocus>
+        </div>
+        <div class="mb-1">
+            <label for="password" class="form-label">Mật khẩu</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+
+        <div class="text-end mb-3">
+            <a th:href="@{/forgot-password}">Quên mật khẩu?</a>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input">
+            <label for="remember-me" class="form-check-label">Ghi nhớ đăng nhập</label>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+    </form>
+
+    <hr class="my-4">
+
+    <a th:href="@{/oauth2/authorization/google}" class="btn btn-danger w-100">
+        <i class="fab fa-google"></i> Đăng nhập bằng Google
+    </a>
+
+    <div class="mt-3 text-center">
+        <a th:href="@{/register}">Chưa có tài khoản? Đăng ký ngay</a>
+    </div>
+</div>
+</body>
+</html>
+
