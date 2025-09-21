@@ -22,27 +22,6 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-//    public User registerUser(@Valid User user) {
-//        // Kiểm tra username đã tồn tại
-//        if (userRepository.existsByUsername(user.getUsername())) {
-//            throw new IllegalArgumentException("Tên người dùng đã tồn tại");
-//        }
-//
-//        // Encode rawPassword → password
-//        String encoded = passwordEncoder.encode(user.getRawPassword());
-//        user.setPassword(encoded);
-//
-//        // Gán mặc định ROLE_USER nếu chưa có
-//        if (user.getRole() == null || user.getRole().isEmpty()) {
-//            user.setRole("USER");
-//        }
-//
-//        // Gán enabled mặc định = true
-//        user.setEnabled(true);
-//
-//        return userRepository.save(user);
-//    }
-
     public User registerUser(@Valid User user) {
         // Kiểm tra username (email) đã tồn tại
         if (userRepository.existsByUsername(user.getUsername())) {

@@ -1,0 +1,467 @@
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="vi" xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Chatbot Tâm Sự</title>-->
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+<!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">-->
+<!--    <style>-->
+<!--        .chat-container {-->
+<!--          max-height: 550px;-->
+<!--          overflow-y: auto;-->
+<!--          scroll-behavior: smooth;-->
+<!--        }-->
+<!--        .user-message {-->
+<!--          background: linear-gradient(135deg, #a855f7, #ec4899);-->
+<!--          color: white;-->
+<!--          border-radius: 18px 18px 4px 18px;-->
+<!--          box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);-->
+<!--          animation: fadeIn 0.3s ease-in;-->
+<!--        }-->
+<!--        .bot-message {-->
+<!--          background: #f8fafc;-->
+<!--          color: #1f2937;-->
+<!--          border-radius: 18px 18px 18px 4px;-->
+<!--          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);-->
+<!--          animation: fadeIn 0.3s ease-in;-->
+<!--        }-->
+<!--        .typing-animation span {-->
+<!--          animation: typing 1.4s infinite;-->
+<!--          display: inline-block;-->
+<!--        }-->
+<!--        .typing-animation span:nth-child(2) { animation-delay: 0.2s; }-->
+<!--        .typing-animation span:nth-child(3) { animation-delay: 0.4s; }-->
+<!--        @keyframes typing {-->
+<!--          0%, 100% { opacity: 0.3; }-->
+<!--          50% { opacity: 1; }-->
+<!--        }-->
+<!--        @keyframes fadeIn {-->
+<!--          from { opacity: 0; transform: translateY(10px); }-->
+<!--          to { opacity: 1; transform: translateY(0); }-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body class="bg-gradient-to-br from-purple-100 via-pink-100 to-rose-100 min-h-screen flex items-center justify-center p-6">-->
+
+<!--<div class="w-full max-w-3xl">-->
+<!--    &lt;!&ndash; Header &ndash;&gt;-->
+<!--    <div class="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl shadow-lg p-6 mb-6 text-center text-white">-->
+<!--        <h1 class="text-4xl font-extrabold mb-2 flex items-center justify-center">-->
+<!--            <i class="fas fa-robot mr-3 text-yellow-300 animate-bounce"></i>-->
+<!--            Chatbot Tâm Sự-->
+<!--        </h1>-->
+<!--        <p class="text-lg opacity-90">Một người bạn nhỏ luôn sẵn sàng lắng nghe và chia sẻ cùng bạn ❤️</p>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Chat Container &ndash;&gt;-->
+<!--    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-purple-100">-->
+<!--        <div id="chatContainer" class="chat-container mb-4 p-4 bg-gray-50 rounded-xl min-h-[400px]">-->
+<!--            <div class="bot-message p-4 mb-4 max-w-xs">-->
+<!--                <p>Xin chào 👋! Mình là Chatbot Tâm Sự. Hôm nay bạn muốn chia sẻ điều gì? 💬</p>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Input Area &ndash;&gt;-->
+<!--        <div class="flex gap-3">-->
+<!--            <input type="text" id="messageInput"-->
+<!--                   placeholder="Viết gì đó để mình lắng nghe..."-->
+<!--                   class="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm">-->
+<!--            <button onclick="sendMessage()"-->
+<!--                    class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-md hover:opacity-90 transition flex items-center gap-2">-->
+<!--                <i class="fas fa-paper-plane"></i> Gửi-->
+<!--            </button>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Additional Features &ndash;&gt;-->
+<!--        <div class="mt-4 flex gap-3">-->
+<!--            <button onclick="clearChat()" class="px-4 py-2 bg-gray-600 text-white rounded-xl shadow-md hover:bg-gray-700 flex items-center gap-2">-->
+<!--                <i class="fas fa-trash"></i> Xóa chat-->
+<!--            </button>-->
+<!--            <button onclick="suggestTopic()" class="px-4 py-2 bg-blue-500 text-white rounded-xl shadow-md hover:bg-blue-600 flex items-center gap-2">-->
+<!--                <i class="fas fa-lightbulb"></i> Gợi ý-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script>-->
+<!--    let conversationHistory = "";-->
+
+<!--    function sendMessage() {-->
+<!--      const input = document.getElementById('messageInput');-->
+<!--      const message = input.value.trim();-->
+<!--      if (!message) return;-->
+
+<!--      addMessage(message, 'user');-->
+<!--      input.value = '';-->
+<!--      showTypingIndicator();-->
+
+<!--      fetch('/chatbot/chat', {-->
+<!--        method: 'POST',-->
+<!--        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },-->
+<!--        body: 'message=' + encodeURIComponent(message)-->
+<!--      })-->
+<!--        .then(response => response.text())-->
+<!--        .then(data => {-->
+<!--          removeTypingIndicator();-->
+<!--          addMessage(data, 'bot');-->
+<!--          conversationHistory += `Người dùng: ${message}\nBot: ${data}\n\n`;-->
+<!--        })-->
+<!--        .catch(() => {-->
+<!--          removeTypingIndicator();-->
+<!--          addMessage('Xin lỗi 😢, có lỗi xảy ra. Bạn thử lại nhé!', 'bot');-->
+<!--        });-->
+<!--    }-->
+
+<!--    function addMessage(text, sender) {-->
+<!--      const chatContainer = document.getElementById('chatContainer');-->
+<!--      const messageDiv = document.createElement('div');-->
+<!--      messageDiv.className = sender === 'user'-->
+<!--        ? 'user-message p-4 mb-4 ml-auto max-w-xs'-->
+<!--        : 'bot-message p-4 mb-4 mr-auto max-w-xs';-->
+<!--      messageDiv.innerHTML = `<p>${text}</p>`;-->
+<!--      chatContainer.appendChild(messageDiv);-->
+<!--      chatContainer.scrollTop = chatContainer.scrollHeight;-->
+<!--    }-->
+
+<!--    function showTypingIndicator() {-->
+<!--      const chatContainer = document.getElementById('chatContainer');-->
+<!--      const typingDiv = document.createElement('div');-->
+<!--      typingDiv.id = 'typingIndicator';-->
+<!--      typingDiv.className = 'bot-message p-4 mb-4 mr-auto max-w-xs';-->
+<!--      typingDiv.innerHTML = `-->
+<!--        <div class="typing-animation text-gray-500">-->
+<!--          <span>.</span><span>.</span><span>.</span>-->
+<!--        </div>`;-->
+<!--      chatContainer.appendChild(typingDiv);-->
+<!--      chatContainer.scrollTop = chatContainer.scrollHeight;-->
+<!--    }-->
+
+<!--    function removeTypingIndicator() {-->
+<!--      const typingIndicator = document.getElementById('typingIndicator');-->
+<!--      if (typingIndicator) typingIndicator.remove();-->
+<!--    }-->
+
+<!--    function clearChat() {-->
+<!--      const chatContainer = document.getElementById('chatContainer');-->
+<!--      chatContainer.innerHTML = `-->
+<!--        <div class="bot-message p-4 mb-4 max-w-xs">-->
+<!--          <p>Xin chào 👋! Mình là Chatbot Tâm Sự. Hôm nay bạn muốn chia sẻ điều gì? 💬</p>-->
+<!--        </div>`;-->
+<!--      conversationHistory = "";-->
+<!--    }-->
+
+<!--    function suggestTopic() {-->
+<!--      const topics = [-->
+<!--        "Hôm nay bạn cảm thấy thế nào?",-->
+<!--        "Có điều gì khiến bạn bận tâm gần đây?",-->
+<!--        "Chia sẻ một kỷ niệm vui gần đây nào!",-->
+<!--        "Bạn có ước mơ nào muốn thực hiện không?",-->
+<!--        "Nếu được đi đâu đó ngay bây giờ, bạn muốn đi đâu?"-->
+<!--      ];-->
+<!--      document.getElementById('messageInput').value = topics[Math.floor(Math.random() * topics.length)];-->
+<!--    }-->
+
+<!--    document.getElementById('messageInput').addEventListener('keypress', function(e) {-->
+<!--      if (e.key === 'Enter') sendMessage();-->
+<!--    });-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Tâm Sự</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+          max-height: 550px;
+          overflow-y: auto;
+          scroll-behavior: smooth;
+          overflow-x: hidden;
+          word-wrap: break-word;
+        }
+        .user-message {
+          background: linear-gradient(135deg, #a855f7, #ec4899);
+          color: white;
+          border-radius: 18px 18px 4px 18px;
+          box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+          animation: fadeIn 0.3s ease-in;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          white-space: pre-wrap;
+        }
+        .bot-message {
+          background: #f8fafc;
+          color: #1f2937;
+          border-radius: 18px 18px 18px 4px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          animation: fadeIn 0.3s ease-in;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          white-space: pre-wrap;
+        }
+        .bot-message p, .user-message p {
+          text-align: justify;
+          margin: 0;
+          line-height: 1.6;
+          overflow-wrap: break-word;
+          word-break: break-word;
+        }
+        .typing-animation span {
+          animation: typing 1.4s infinite;
+          display: inline-block;
+        }
+        .typing-animation span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-animation span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .typing-cursor::after {
+          content: "|";
+          animation: blink 1s infinite;
+          color: #a855f7;
+          font-weight: bold;
+        }
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+        .chat-container::-webkit-scrollbar {
+          width: 6px;
+        }
+        .chat-container::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #a855f7, #ec4899);
+          border-radius: 10px;
+        }
+        .chat-container::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #9333ea, #db2777);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-100 via-pink-100 to-rose-100 min-h-screen flex items-center justify-center p-6">
+
+<div class="w-full max-w-3xl">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl shadow-lg p-6 mb-6 text-center text-white">
+        <h1 class="text-4xl font-extrabold mb-2 flex items-center justify-center">
+            <i class="fas fa-robot mr-3 text-yellow-300 animate-bounce"></i>
+            Chatbot Tâm Sự
+        </h1>
+        <p class="text-lg opacity-90">Một người bạn nhỏ luôn sẵn sàng lắng nghe và chia sẻ cùng bạn ❤️</p>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-purple-100">
+        <div id="chatContainer" class="chat-container mb-4 p-4 bg-gray-50 rounded-xl min-h-[400px]">
+            <div class="bot-message p-4 mb-4 max-w-xs">
+                <p>Xin chào 👋! Mình là Chatbot Tâm Sự. Hôm nay bạn muốn chia sẻ điều gì? 💬</p>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="flex gap-3">
+            <input type="text" id="messageInput"
+                   placeholder="Viết gì đó để mình lắng nghe..."
+                   class="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm">
+            <button onclick="sendMessage()" id="sendButton"
+                    class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-md hover:opacity-90 transition flex items-center gap-2">
+                <i class="fas fa-paper-plane"></i> Gửi
+            </button>
+        </div>
+
+        <!-- Additional Features -->
+        <div class="mt-4 flex gap-3">
+            <button onclick="clearChat()" class="px-4 py-2 bg-gray-600 text-white rounded-xl shadow-md hover:bg-gray-700 flex items-center gap-2">
+                <i class="fas fa-trash"></i> Xóa chat
+            </button>
+            <button onclick="suggestTopic()" class="px-4 py-2 bg-blue-500 text-white rounded-xl shadow-md hover:bg-blue-600 flex items-center gap-2">
+                <i class="fas fa-lightbulb"></i> Gợi ý
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let conversationHistory = "";
+    let isBotTyping = false;
+    let currentTypingInterval = null;
+
+    // Cấu hình tốc độ gõ chữ
+    const TYPING_CONFIG = {
+        speed: 30,
+        delay: 500,
+        cursor: true
+    };
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        if (!message || isBotTyping) return;
+
+        addMessage(message, 'user');
+        input.value = '';
+        showTypingIndicator();
+        updateInputStatus();
+
+        // Giả lập phản hồi từ server
+        setTimeout(() => {
+            removeTypingIndicator();
+            const botResponse = "thoải mái kể nhé! Không cần phải ngại ngừng gì cả đâu.\n\nÔi dào, buồn thế nào vậy cứng? Cứ kể cho chị nghe đi, đừng giấu trong lòng nhé. Chị ở đây mà, luôn sẵn sàng lắng nghe bất cứ điều gì em muốn chia sẻ. Đừng ngại ngăn gì cả, cứ thoải mái tâm sự nha. Có khi nói ra rồi sẽ thấy nhẹ lòng hơn đó. Thôi nào, kể chị nghe xem sao? Chị sẽ có gắng hết sức để hiểu và giúp em vượt qua giai đoạn này.";
+            typeWriterEffect(botResponse, 'bot');
+        }, 1000);
+    }
+
+    // Hiệu ứng gõ chữ từ từ
+    function typeWriterEffect(text, sender) {
+        isBotTyping = true;
+        updateInputStatus();
+
+        const chatContainer = document.getElementById('chatContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = sender === 'user'
+            ? 'user-message p-4 mb-4 ml-auto max-w-xs'
+            : 'bot-message p-4 mb-4 mr-auto max-w-xs';
+        messageDiv.id = 'typing-message';
+
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        let i = 0;
+        currentTypingInterval = setInterval(() => {
+            if (i < text.length) {
+                let displayText = text.substring(0, i + 1);
+                // Thêm con trỏ nhấp nháy khi đang gõ
+                if (TYPING_CONFIG.cursor) {
+                    displayText += '<span class="typing-cursor"></span>';
+                }
+                messageDiv.innerHTML = `<p>${displayText}</p>`;
+                i++;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } else {
+                clearInterval(currentTypingInterval);
+                isBotTyping = false;
+                currentTypingInterval = null;
+                updateInputStatus();
+
+                // QUAN TRỌNG: Loại bỏ con trỏ nhấp nháy khi kết thúc
+                messageDiv.innerHTML = `<p>${text}</p>`;
+
+                // Cập nhật lịch sử hội thoại sau khi gõ xong
+                const userMessage = document.querySelector('.user-message:last-child p').textContent;
+                conversationHistory += `Người dùng: ${userMessage}\nBot: ${text}\n\n`;
+            }
+        }, TYPING_CONFIG.speed);
+    }
+
+    function addMessage(text, sender) {
+        // Nếu đang gõ thì dừng lại
+        if (isBotTyping && currentTypingInterval) {
+            clearInterval(currentTypingInterval);
+            isBotTyping = false;
+            updateInputStatus();
+
+            // Xóa message đang gõ dở
+            const typingMessage = document.getElementById('typing-message');
+            if (typingMessage) {
+                typingMessage.remove();
+            }
+        }
+
+        const chatContainer = document.getElementById('chatContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = sender === 'user'
+            ? 'user-message p-4 mb-4 ml-auto max-w-xs'
+            : 'bot-message p-4 mb-4 mr-auto max-w-xs';
+        messageDiv.innerHTML = `<p>${text}</p>`;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const chatContainer = document.getElementById('chatContainer');
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typingIndicator';
+        typingDiv.className = 'bot-message p-4 mb-4 mr-auto max-w-xs';
+        typingDiv.innerHTML = `
+            <div class="typing-animation text-gray-500">
+                <span>.</span><span>.</span><span>.</span>
+            </div>`;
+        chatContainer.appendChild(typingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) typingIndicator.remove();
+    }
+
+    function updateInputStatus() {
+        const input = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        if (isBotTyping) {
+            input.placeholder = "Đang trả lời...";
+            input.disabled = true;
+            sendButton.disabled = true;
+            sendButton.classList.add('opacity-50');
+        } else {
+            input.placeholder = "Viết gì đó để mình lắng nghe...";
+            input.disabled = false;
+            sendButton.disabled = false;
+            sendButton.classList.remove('opacity-50');
+        }
+    }
+
+    function clearChat() {
+        // Dừng hiệu ứng gõ chữ nếu đang chạy
+        if (currentTypingInterval) {
+            clearInterval(currentTypingInterval);
+            currentTypingInterval = null;
+        }
+
+        isBotTyping = false;
+        updateInputStatus();
+
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.innerHTML = `
+            <div class="bot-message p-4 mb-4 max-w-xs">
+                <p>Xin chào 👋! Mình là Chatbot Tâm Sự. Hôm nay bạn muốn chia sẻ điều gì? 💬</p>
+            </div>`;
+        conversationHistory = "";
+    }
+
+    function suggestTopic() {
+        if (isBotTyping) return;
+
+        const topics = [
+            "Hôm nay bạn cảm thấy thế nào?",
+            "Có điều gì khiến bạn bận tâm gần đây?",
+            "Chia sẻ một kỷ niệm vui gần đây nào!",
+            "Bạn có ước mơ nào muốn thực hiện không?",
+            "Nếu được đi đâu đó ngay bây giờ, bạn muốn đi đâu?"
+        ];
+        document.getElementById('messageInput').value = topics[Math.floor(Math.random() * topics.length)];
+    }
+
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !isBotTyping) sendMessage();
+    });
+</script>
+</body>
+</html>

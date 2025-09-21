@@ -1,5 +1,4 @@
 
-
 package com.example.DuDoanAI.service;
 
 import com.example.DuDoanAI.model.SentimentAnalysis;
@@ -38,6 +37,38 @@ public class SentimentService {
     }
 
     /**
+     * Tính điểm sentiment dạng liên tục [-1..1] dựa trên nhãn và độ tin cậy từ
+     * AIService.
+     * Dương: Tích cực, Âm: Tiêu cực, 0: Trung tính
+     */
+    public Double calculateSentiment(String text) {
+        String label = aiService.analyzeSentiment(text);
+        double confidence = aiService.calculateConfidence(text, label);
+
+        if ("Tích cực".equals(label)) {
+            return confidence; // 0..1
+        }
+        if ("Tiêu cực".equals(label)) {
+            return -confidence; // -1..0
+        }
+        return 0.0;
+    }
+
+    /**
+     * Suy ra nhãn cảm xúc từ điểm liên tục với ngưỡng hợp lý.
+     */
+    public String getSentimentLabel(Double score) {
+        if (score == null)
+            return "Trung tính";
+        // Ngưỡng có thể tinh chỉnh theo dữ liệu thực tế
+        if (score > 0.3)
+            return "Tích cực";
+        if (score < -0.3)
+            return "Tiêu cực";
+        return "Trung tính";
+    }
+
+    /**
      * Phân tích cảm xúc cho văn bản dài bằng cách tách câu
      */
     public SentimentAnalysis analyzeLongText(String text) {
@@ -50,7 +81,8 @@ public class SentimentService {
         double totalConfidence = 0;
 
         for (String sentence : sentences) {
-            if (sentence.trim().isEmpty()) continue;
+            if (sentence.trim().isEmpty())
+                continue;
 
             String sentiment = aiService.analyzeSentiment(sentence);
             double confidence = aiService.calculateConfidence(sentence, sentiment);
@@ -97,7 +129,6 @@ public class SentimentService {
     public List<SentimentAnalysis> getAllAnalyses() {
         return repository.findAllOrderByCreatedAtDesc();
     }
-
 
     /**
      * Lấy phân tích theo loại cảm xúc
@@ -162,10 +193,21 @@ public class SentimentService {
             this.neutralCount = neutralCount;
         }
 
-        public long getTotal() { return total; }
-        public long getPositiveCount() { return positiveCount; }
-        public long getNegativeCount() { return negativeCount; }
-        public long getNeutralCount() { return neutralCount; }
+        public long getTotal() {
+            return total;
+        }
+
+        public long getPositiveCount() {
+            return positiveCount;
+        }
+
+        public long getNegativeCount() {
+            return negativeCount;
+        }
+
+        public long getNeutralCount() {
+            return neutralCount;
+        }
 
         public double getPositivePercentage() {
             return total > 0 ? (double) positiveCount / total * 100 : 0;
